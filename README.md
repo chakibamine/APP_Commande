@@ -20,7 +20,7 @@ npm run db:seed
 npm run start:dev
 ```
 
-- API : `http://localhost:3000`
+- API : `http://localhost:3000/api`
 - Swagger : `http://localhost:3000/api/docs`
 - Compte admin de démonstration : `admin@petrole.local` / `Admin1234!`
 
@@ -40,7 +40,7 @@ npm install
 npm run dev
 ```
 
-Le serveur Vite redirige `/api` vers `http://localhost:3000`. Back-office : `/admin/connexion`.
+Le serveur Vite redirige `/api` vers `http://localhost:3000/api`. Back-office : `/admin/connexion`.
 
 ## Mobile
 
@@ -50,4 +50,8 @@ flutter pub get
 flutter run
 ```
 
-L’adresse de l’API est définie dans `mobile/lib/config.dart` (IP du PC sur le réseau local, port 3000). Les comptes clients sont créés depuis le back-office ; connexion par téléphone et mot de passe.
+L’adresse de l’API vient de `--dart-define=API_BASE_URL=...` ; par défaut `mobile/lib/config.dart` vise l’IP du PC sur le réseau local (`http://192.168.1.2:3000/api`). Les comptes clients sont créés depuis le back-office ; connexion par téléphone et mot de passe.
+
+## Déploiement
+
+Staging (branche `develop`) et prod (branche `main`) sur Windows Server avec PM2 et GitHub Actions : voir [deploy/README.md](deploy/README.md).

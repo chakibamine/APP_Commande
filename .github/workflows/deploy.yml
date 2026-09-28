@@ -1,0 +1,96 @@
+name: Deploy
+
+on:
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environnement cible
+        type: choice
+        options: [staging, prod]
+        default: staging
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  target:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.pick.outputs.environment }}
+    steps:
+      - id: pick
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "environment=${{ inputs.environment }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.ref_name }}" = "main" ]; then
+            echo "environment=prod" >> "$GITHUB_OUTPUT"
+          else
+            echo "environment=staging" >> "$GITHUB_OUTPUT"
+          fi
+
+  server:
+    needs: [ci, target]
+    runs-on: [self-hosted, windows, bgi]
+    environment:
+      name: ${{ needs.target.outputs.environment }}
+      url: ${{ vars.APP_URL }}
+    concurrency:
+      group: deploy-${{ needs.target.outputs.environment }}
+      cancel-in-progress: false
+    env:
+      PM2_HOME: C:\ProgramData\pm2\home
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Build backend
+        working-directory: backend
+        shell: powershell
+        run: |
+          npm ci; if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npx prisma generate; if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm run build
+      - name: Build frontend
+        working-directory: frontend
+        shell: powershell
+        run: |
+          npm ci; if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm run build
+      - name: Deploy
+        shell: powershell
+        run: ./deploy/deploy.ps1 -Environment ${{ needs.target.outputs.environment }}
+
+  apk:
+    needs: [ci, target]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Build APK
+        env:
+          API_BASE_URL: ${{ needs.target.outputs.environment == 'prod' && vars.PROD_API_BASE_URL || vars.STAGING_API_BASE_URL }}
+        run: |
+          if [ -z "$API_BASE_URL" ]; then
+            echo "Variable PROD_API_BASE_URL / STAGING_API_BASE_URL manquante" >&2
+            exit 1
+          fi
+          flutter pub get
+          flutter build apk --release --dart-define=API_BASE_URL="$API_BASE_URL"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bgi-commandes-${{ needs.target.outputs.environment }}-apk
+          path: mobile/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
