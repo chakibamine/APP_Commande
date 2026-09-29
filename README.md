@@ -5,7 +5,7 @@ Gestion des clients, du catalogue (carburants, lubrifiants, gaz) et des commande
 ```text
 APP_Commande/
 ├── backend/    API NestJS + Prisma (SQL Server), authentification JWT
-├── frontend/   React (Vite) : catalogue client et back-office
+├── frontend/   React (Vite) : back-office (administrateurs, gestionnaires)
 └── mobile/     Flutter (Android) : application client
 ```
 
@@ -40,7 +40,7 @@ npm install
 npm run dev
 ```
 
-Le serveur Vite redirige `/api` vers `http://localhost:3000/api`. Back-office : `/admin/connexion`.
+Le serveur Vite redirige `/api` vers `http://localhost:3000/api`. Connexion back-office : `/connexion`.
 
 ## Mobile
 
