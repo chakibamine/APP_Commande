@@ -4,14 +4,21 @@ import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-async function main() {
+async function seedAdmin() {
   const email = process.env.SEED_ADMIN_EMAIL ?? 'admin@petrole.local';
   const password = process.env.SEED_ADMIN_PASSWORD ?? 'Admin1234!';
-  const motDePasse = await bcrypt.hash(password, 10);
+  const reset = process.env.SEED_ADMIN_RESET === 'true';
 
+  const existing = await prisma.utilisateur.findUnique({ where: { email } });
+  if (existing && !reset) {
+    console.log(`Admin ${email} déjà présent, mot de passe inchangé.`);
+    return;
+  }
+
+  const motDePasse = await bcrypt.hash(password, 10);
   await prisma.utilisateur.upsert({
     where: { email },
-    update: { motDePasse, role: Role.ADMIN, nom: 'Administrateur' },
+    update: { motDePasse, role: Role.ADMIN },
     create: {
       nom: 'Administrateur',
       email,
@@ -19,7 +26,10 @@ async function main() {
       role: Role.ADMIN,
     },
   });
+  console.log(existing ? `Admin ${email} réinitialisé.` : `Admin ${email} créé.`);
+}
 
+async function seedProduits() {
   const produits = [
     {
       nom: 'Gasoil',
@@ -44,6 +54,13 @@ async function main() {
         },
       });
     }
+  }
+}
+
+async function main() {
+  await seedAdmin();
+  if (process.env.SEED_DEMO_PRODUITS !== 'false') {
+    await seedProduits();
   }
 }
 

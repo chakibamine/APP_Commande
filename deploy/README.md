@@ -36,9 +36,13 @@ NestJS sert l’API sous `/api` et le site React sur les autres chemins : un seu
    JWT_SECRET=<longue chaîne aléatoire, différente de la prod>
    JWT_EXPIRES_IN=1d
    PORT=3001
+   SEED_ADMIN_EMAIL=admin@bgi.ma
+   SEED_ADMIN_PASSWORD=<mot de passe fort>
    ```
 
-   `C:\BGI_cmd\prod\.env` : même format avec `database=petrole_prod`, un autre `JWT_SECRET` et `PORT=3000`.
+   `C:\BGI_cmd\prod\.env` : même format avec `database=petrole_prod`, un autre `JWT_SECRET`, `PORT=3000` et un autre mot de passe admin.
+
+   À chaque déploiement, le compte admin `SEED_ADMIN_EMAIL` est créé s’il n’existe pas ; s’il existe déjà, son mot de passe n’est pas modifié. Pour le réinitialiser, ajouter `SEED_ADMIN_RESET=true`, redéployer, puis retirer la ligne.
 
    Ces fichiers restent sur le serveur ; ils ne sont jamais dans Git.
 
@@ -79,12 +83,7 @@ git checkout -b staging
 git push -u origin staging   # déploie staging
 ```
 
-Puis, une seule fois par environnement, créer le compte admin (depuis le dossier du runner, dans `_work\APP_Commande\APP_Commande\backend`, ou depuis un clone) :
-
-```powershell
-$env:DATABASE_URL = "<URL de l'environnement>"
-npm run db:seed
-```
+Le compte admin est créé pendant le déploiement à partir de `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` du `.env` (étape « Compte admin » dans le log).
 
 Pour la prod : fusionner `staging` dans `main` (pull request), valider le déploiement dans l’onglet **Actions**.
 
