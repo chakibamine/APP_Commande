@@ -92,6 +92,28 @@ Invoke-Native 'Migrations Prisma' {
   }
 }
 
+$seedEmail = Read-EnvValue 'SEED_ADMIN_EMAIL'
+$seedPassword = Read-EnvValue 'SEED_ADMIN_PASSWORD'
+if ($seedEmail -and $seedPassword) {
+  Invoke-Native "Compte admin $seedEmail" {
+    Push-Location (Join-Path $repo 'backend')
+    try {
+      $env:DATABASE_URL = $databaseUrl
+      $env:SEED_ADMIN_EMAIL = $seedEmail
+      $env:SEED_ADMIN_PASSWORD = $seedPassword
+      $env:SEED_ADMIN_RESET = Read-EnvValue 'SEED_ADMIN_RESET'
+      $env:SEED_DEMO_PRODUITS = 'false'
+      npx prisma db seed
+    } finally {
+      'DATABASE_URL', 'SEED_ADMIN_EMAIL', 'SEED_ADMIN_PASSWORD', 'SEED_ADMIN_RESET', 'SEED_DEMO_PRODUITS' |
+        ForEach-Object { Remove-Item "Env:$_" -ErrorAction SilentlyContinue }
+      Pop-Location
+    }
+  }
+} else {
+  Write-Host '==> Compte admin : SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD absents, étape ignorée'
+}
+
 Write-Host "==> Copie vers $release"
 Copy-Tree (Join-Path $repo 'backend\dist') (Join-Path $release 'dist')
 Copy-Tree (Join-Path $repo 'backend\node_modules') (Join-Path $release 'node_modules')
