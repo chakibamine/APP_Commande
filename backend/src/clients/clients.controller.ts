@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
   Patch,
+  Post,
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -13,6 +15,7 @@ import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { TokenType } from '../common/enums/token-type.enum';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { RegisterClientDto } from '../auth/dto/register-client.dto';
 import type { AuthUser } from '../common/interfaces/auth-user.interface';
 import { ClientsService } from './clients.service';
 import { UpdateClientDto } from './dto/update-client.dto';
@@ -44,10 +47,36 @@ export class ClientsController {
     return this.clientsService.findAll(query);
   }
 
+  @Post()
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
+  @ApiOperation({ summary: 'Créer un compte client' })
+  create(@Body() dto: RegisterClientDto) {
+    return this.clientsService.create(dto);
+  }
+
   @Get(':id')
   @Roles(Role.ADMIN, Role.GESTIONNAIRE)
   @ApiOperation({ summary: "Détail d'un client" })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.clientsService.findOne(id);
+  }
+
+  @Patch(':id')
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
+  @ApiOperation({
+    summary: 'Modifier un client (mot de passe optionnel pour le réinitialiser)',
+  })
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateClientDto,
+  ) {
+    return this.clientsService.update(id, dto);
+  }
+
+  @Delete(':id')
+  @Roles(Role.ADMIN, Role.GESTIONNAIRE)
+  @ApiOperation({ summary: 'Supprimer un client sans commande' })
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.clientsService.remove(id);
   }
 }

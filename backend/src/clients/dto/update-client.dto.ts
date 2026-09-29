@@ -20,10 +20,10 @@ export class UpdateClientDto {
   @IsNotEmpty()
   telephone?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ nullable: true, description: 'null pour effacer' })
   @IsOptional()
   @IsEmail()
-  email?: string;
+  email?: string | null;
 
   @ApiPropertyOptional()
   @IsOptional()

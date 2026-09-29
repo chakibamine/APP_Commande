@@ -732,6 +732,14 @@ dd { margin: 0.2rem 0 0; font-size: 1.05rem; }
   box-shadow: 0 10px 30px rgba(23, 32, 51, 0.12);
   padding: 0.3rem;
 }
+.row-menu-list a {
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  color: var(--ink);
+  font-weight: 400;
+  text-decoration: none;
+}
+.row-menu-list a:hover { background: #f3efe6; }
 .row-menu-list button {
   border: 0;
   background: transparent;
