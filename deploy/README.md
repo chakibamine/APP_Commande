@@ -2,7 +2,7 @@
 
 | Branche   | Environnement | Dossier serveur        | Process PM2   |
 |-----------|---------------|------------------------|---------------|
-| `develop` | staging       | `C:\BGI_cmd\staging`  | `bgi-staging` |
+| `staging` | staging       | `C:\BGI_cmd\staging`  | `bgi-staging` |
 | `main`    | prod          | `C:\BGI_cmd\prod`     | `bgi-prod`    |
 
 Chaque push lance la CI (backend, frontend, mobile). Si elle passe, le runner auto-hébergé du serveur construit le backend et le frontend, applique les migrations Prisma, copie le tout dans une nouvelle release, bascule `current` et recharge PM2. Si l’API ne répond pas après le rechargement, la release précédente est remise en place. Un APK Android pointant sur l’environnement est publié comme artefact du run.
@@ -75,8 +75,8 @@ Vérifier ensuite dans une console ouverte avec ce compte que `node -v`, `git --
 ## 4. Premier déploiement
 
 ```powershell
-git checkout -b develop
-git push -u origin develop   # déploie staging
+git checkout -b staging
+git push -u origin staging   # déploie staging
 ```
 
 Puis, une seule fois par environnement, créer le compte admin (depuis le dossier du runner, dans `_work\APP_Commande\APP_Commande\backend`, ou depuis un clone) :
@@ -86,7 +86,7 @@ $env:DATABASE_URL = "<URL de l'environnement>"
 npm run db:seed
 ```
 
-Pour la prod : fusionner `develop` dans `main` (pull request), valider le déploiement dans l’onglet **Actions**.
+Pour la prod : fusionner `staging` dans `main` (pull request), valider le déploiement dans l’onglet **Actions**.
 
 ## Exploitation
 

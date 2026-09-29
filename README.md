@@ -54,4 +54,4 @@ L’adresse de l’API vient de `--dart-define=API_BASE_URL=...` ; par défaut `
 
 ## Déploiement
 
-Staging (branche `develop`) et prod (branche `main`) sur Windows Server avec PM2 et GitHub Actions : voir [deploy/README.md](deploy/README.md).
+Staging (branche `staging`) et prod (branche `main`) sur Windows Server avec PM2 et GitHub Actions : voir [deploy/README.md](deploy/README.md).
