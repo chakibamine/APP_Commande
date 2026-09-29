@@ -8,7 +8,7 @@ param(
   [Parameter(Mandatory = $true)]
   [ValidateSet('staging', 'prod')]
   [string]$Environment,
-  [string]$Root = 'C:\apps\bgi',
+  [string]$Root = 'C:\BGI_cmd',
   [int]$Keep = 3
 )
 

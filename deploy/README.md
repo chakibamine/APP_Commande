@@ -2,8 +2,8 @@
 
 | Branche   | Environnement | Dossier serveur        | Process PM2   |
 |-----------|---------------|------------------------|---------------|
-| `develop` | staging       | `C:\apps\bgi\staging`  | `bgi-staging` |
-| `main`    | prod          | `C:\apps\bgi\prod`     | `bgi-prod`    |
+| `develop` | staging       | `C:\BGI_cmd\staging`  | `bgi-staging` |
+| `main`    | prod          | `C:\BGI_cmd\prod`     | `bgi-prod`    |
 
 Chaque push lance la CI (backend, frontend, mobile). Si elle passe, le runner auto-hébergé du serveur construit le backend et le frontend, applique les migrations Prisma, copie le tout dans une nouvelle release, bascule `current` et recharge PM2. Si l’API ne répond pas après le rechargement, la release précédente est remise en place. Un APK Android pointant sur l’environnement est publié comme artefact du run.
 
@@ -26,10 +26,10 @@ NestJS sert l’API sous `/api` et le site React sur les autres chemins : un seu
 3. Créer les dossiers et les fichiers d’environnement :
 
    ```powershell
-   New-Item -ItemType Directory -Force C:\apps\bgi\staging, C:\apps\bgi\prod
+   New-Item -ItemType Directory -Force C:\BGI_cmd\staging, C:\BGI_cmd\prod
    ```
 
-   `C:\apps\bgi\staging\.env` :
+   `C:\BGI_cmd\staging\.env` :
 
    ```ini
    DATABASE_URL="sqlserver://localhost:1433;database=petrole_staging;user=petrole_app;password=...;encrypt=true;trustServerCertificate=true"
@@ -38,7 +38,7 @@ NestJS sert l’API sous `/api` et le site React sur les autres chemins : un seu
    PORT=3001
    ```
 
-   `C:\apps\bgi\prod\.env` : même format avec `database=petrole_prod`, un autre `JWT_SECRET` et `PORT=3000`.
+   `C:\BGI_cmd\prod\.env` : même format avec `database=petrole_prod`, un autre `JWT_SECRET` et `PORT=3000`.
 
    Ces fichiers restent sur le serveur ; ils ne sont jamais dans Git.
 
@@ -56,7 +56,7 @@ Dans GitHub : **Settings → Actions → Runners → New self-hosted runner → 
 
 - labels supplémentaires : `bgi` (le workflow demande `self-hosted, windows, bgi`) ;
 - répondre **Y** pour l’installer comme service ;
-- compte du service : un compte administrateur local (ou un compte ayant les droits sur `C:\apps\bgi` et `C:\ProgramData\pm2`).
+- compte du service : un compte administrateur local (ou un compte ayant les droits sur `C:\BGI_cmd` et `C:\ProgramData\pm2`).
 
 Vérifier ensuite dans une console ouverte avec ce compte que `node -v`, `git --version` et `pm2 -v` répondent. Redémarrer le service du runner après une installation qui modifie le PATH.
 
@@ -97,6 +97,6 @@ pm2 logs bgi-staging
 pm2 restart bgi-prod
 ```
 
-Journaux : `C:\apps\bgi\<env>\logs`. Les trois dernières releases sont conservées dans `C:\apps\bgi\<env>\releases` ; pour revenir en arrière à la main, repointer `current` (`cmd /c rmdir current` puis `cmd /c mklink /J current releases\<release>`) et `pm2 reload bgi-<env>`.
+Journaux : `C:\BGI_cmd\<env>\logs`. Les trois dernières releases sont conservées dans `C:\BGI_cmd\<env>\releases` ; pour revenir en arrière à la main, repointer `current` (`cmd /c rmdir current` puis `cmd /c mklink /J current releases\<release>`) et `pm2 reload bgi-<env>`.
 
 Un déploiement peut aussi être lancé à la main : **Actions → Deploy → Run workflow**.

@@ -1,6 +1,6 @@
 const path = require('node:path');
 
-const root = process.env.BGI_ROOT || 'C:\\apps\\bgi';
+const root = process.env.BGI_ROOT || 'C:\\BGI_cmd';
 
 function app(environment) {
   const base = path.join(root, environment);
